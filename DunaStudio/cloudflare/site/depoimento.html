@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deixe seu depoimento — Duna</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-spacer"></div>
+    <a href="index.html" class="brand"><img src="img/logo-duna.png" alt="Duna" class="brand-logo"></a>
+    <div class="topbar-spacer"></div>
+  </header>
+
+  <div class="auth-wrap" style="min-height:auto; padding:30px 20px 60px;">
+    <div class="auth-card" style="max-width:460px;">
+      <h2 style="font-size:19px; margin-bottom:6px; text-align:center;">Como foi sua experiência?</h2>
+      <p style="color:var(--ink-dim); font-size:13px; text-align:center; margin-bottom:20px;">Seu depoimento pode aparecer no nosso portfólio (com sua aprovação prévia mostrando o que preencher aqui).</p>
+      <div class="field"><label>Seu nome (como vai aparecer)</label><input type="text" id="clientName"></div>
+      <div class="field"><label>URL da foto favorita (opcional — cole o link de uma foto do seu álbum)</label><input type="text" id="photoUrl" placeholder="Cole aqui o link de uma foto, se quiser"></div>
+      <div class="field"><label>Seu depoimento</label><textarea id="quote" style="min-height:100px;" placeholder="Conte como foi a experiência..."></textarea></div>
+      <button class="btn btn-primary" id="submitBtn" style="width:100%; justify-content:center;">Enviar depoimento</button>
+      <p id="status" style="text-align:center; color:var(--gold); font-size:13px; margin-top:14px;"></p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="js/studio.js"></script>
+  <script src="js/auth-guard.js"></script>
+  <script>
+    (async () => {
+      await requireSession();
+      document.getElementById('submitBtn').addEventListener('click', async () => {
+        const clientName = document.getElementById('clientName').value.trim();
+        const quote = document.getElementById('quote').value.trim();
+        const photoUrl = document.getElementById('photoUrl').value.trim();
+        if (!clientName || !quote) { alert('Preencha nome e depoimento.'); return; }
+        const res = await fetch('api/testimonials', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ clientName, quote, photoUrl })
+        });
+        if (res.ok) {
+          document.getElementById('status').textContent = 'Obrigado! Seu depoimento foi enviado e será revisado antes de aparecer no site. 💙';
+          document.getElementById('submitBtn').disabled = true;
+        } else {
+          const data = await res.json();
+          alert(data.error || 'Erro ao enviar');
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-# Lightroom → Wedding Flix (upload automático)
+# Lightroom → DunaStudio (upload automático)
 
 Vigia uma pasta no seu computador e sobe as fotos exportadas do Lightroom direto pro álbum escolhido — sem precisar abrir o painel admin.
 
@@ -7,11 +7,12 @@ Vigia uma pasta no seu computador e sobe as fotos exportadas do Lightroom direto
 1. **Configure**:
    ```bash
    cd lightroom-uploader
+   npm install
    cp .env.example .env
    ```
-   Edite o `.env`: `SERVER_URL` (endereço do seu Wedding Flix) e as credenciais de admin.
+   Edite o `.env`: `SERVER_URL` (`https://dunabranding.com.br/studio`) e o seu e-mail e senha de admin do Studio.
 
-2. **No Lightroom**, configure o "Exportar para" apontando pra uma pasta fixa (ex: `Área de Trabalho/Exportar-WeddingFlix`) — pode deixar salvo como um preset de exportação, assim não precisa escolher a pasta toda vez.
+2. **No Lightroom**, configure o "Exportar para" apontando pra uma pasta fixa (ex: `Área de Trabalho/Exportar-DunaStudio`) — pode deixar salvo como um preset de exportação, assim não precisa escolher a pasta toda vez.
 
 3. **Rode o script** antes de exportar:
    ```bash
@@ -20,6 +21,7 @@ Vigia uma pasta no seu computador e sobe as fotos exportadas do Lightroom direto
    ```
    - Ele pede login (usa as credenciais do `.env`, automático).
    - Mostra a lista de álbuns cadastrados — digite o número do álbum daquele casamento.
+   - Se o álbum tiver seções (Making-of, Cerimônia...), pergunta em qual seção as fotos entram.
    - Pergunta a pasta pra vigiar (Enter usa a padrão sugerida).
 
 4. **No Lightroom, exporte normalmente** pra essa mesma pasta. Assim que cada foto termina de ser escrita no disco, o script já sobe ela sozinha — você vê no terminal:

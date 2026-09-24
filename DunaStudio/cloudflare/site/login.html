@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entrar — Duna</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <span class="brand"><img src="img/logo-duna.png" alt="Duna" class="brand-logo"></span>
+      <div class="error-msg" id="errorMsg"></div>
+      <form id="loginForm">
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" required autocomplete="username">
+        </div>
+        <div class="field">
+          <label for="password">Senha</label>
+          <input type="password" id="password" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-primary" id="loginBtn">Entrar</button>
+        <button type="button" class="icon-btn" id="forgotBtn" style="display:block; margin:14px auto 0; color:var(--ink-dim);">Esqueci minha senha</button>
+      </form>
+      <form id="newPasswordForm" style="display:none;">
+        <p style="color:var(--ink-dim); font-size:14px; margin:0 0 14px;">Digite sua nova senha.</p>
+        <div class="field">
+          <label for="newPassword">Nova senha</label>
+          <input type="password" id="newPassword" minlength="6" required autocomplete="new-password">
+        </div>
+        <button type="submit" class="btn btn-primary">Salvar nova senha</button>
+      </form>
+      <p id="infoMsg" style="display:none; color:var(--gold); font-size:13.5px; line-height:1.5; margin-top:14px;"></p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="js/studio.js"></script>
+  <script>
+    const form = document.getElementById('loginForm');
+    const newPasswordForm = document.getElementById('newPasswordForm');
+    const errorMsg = document.getElementById('errorMsg');
+    const infoMsg = document.getElementById('infoMsg');
+
+    function showError(msg) { errorMsg.textContent = msg; errorMsg.style.display = 'block'; infoMsg.style.display = 'none'; }
+    function showInfo(msg) { infoMsg.textContent = msg; infoMsg.style.display = 'block'; errorMsg.style.display = 'none'; }
+
+    async function goToArea() {
+      const res = await fetch('api/auth/me');
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Não foi possível entrar');
+      window.location.href = data.isAdmin ? 'admin.html' : 'index.html';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorMsg.style.display = 'none';
+      const btn = document.getElementById('loginBtn');
+      btn.disabled = true;
+      try {
+        const client = await window.studioReady;
+        if (!client) throw new Error('Não foi possível conectar. Tente de novo em instantes.');
+        const { error } = await client.auth.signInWithPassword({
+          email: document.getElementById('email').value.trim(),
+          password: document.getElementById('password').value
+        });
+        if (error) throw new Error(error.message === 'Invalid login credentials' ? 'E-mail ou senha incorretos' : error.message);
+        await goToArea();
+      } catch (err) {
+        const client = await window.studioReady;
+        if (client && /acesso ao Studio/.test(err.message)) await client.auth.signOut().catch(() => {});
+        showError(err.message);
+        btn.disabled = false;
+      }
+    });
+
+    document.getElementById('forgotBtn').addEventListener('click', async () => {
+      const email = document.getElementById('email').value.trim();
+      if (!email) { showError('Digite seu e-mail acima e toque de novo em "Esqueci minha senha".'); return; }
+      const client = await window.studioReady;
+      const redirectTo = window.location.href.split(/[?#]/)[0];
+      const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo });
+      if (error) showError(error.message);
+      else showInfo('Enviamos um link para o seu e-mail. Abra o link para criar uma nova senha.');
+    });
+
+    // Link do e-mail de recuperação: o Supabase abre esta página já com a sessão de recuperação
+    window.studioReady.then((client) => {
+      if (!client) return;
+      client.auth.onAuthStateChange((event) => {
+        if (event === 'PASSWORD_RECOVERY') {
+          form.style.display = 'none';
+          newPasswordForm.style.display = 'block';
+        }
+      });
+    });
+
+    newPasswordForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const client = await window.studioReady;
+      const { error } = await client.auth.updateUser({ password: document.getElementById('newPassword').value });
+      if (error) { showError(error.message); return; }
+      showInfo('Senha atualizada. Entrando...');
+      try { await goToArea(); } catch (err) { showError(err.message); }
+    });
+  </script>
+</body>
+</html>

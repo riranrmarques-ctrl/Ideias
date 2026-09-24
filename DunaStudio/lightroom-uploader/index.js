@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
+const sharp = require('sharp');
 
 // ---------- Carrega o .env manualmente (sem dependências externas) ----------
 function loadEnv() {
@@ -29,32 +30,52 @@ const ask = (q) => new Promise((resolve) => rl.question(q, resolve));
 
 const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.tif', '.tiff', '.webp'];
 
-let sessionCookie = null;
+// Login pelo Supabase (o mesmo e-mail e senha de admin do site)
+let session = null;
+let supabaseConfig = null;
+
+async function supabaseToken(body, grantType) {
+  const res = await fetch(`${supabaseConfig.supabaseUrl}/auth/v1/token?grant_type=${grantType}`, {
+    method: 'POST',
+    headers: { apikey: supabaseConfig.supabaseAnonKey, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error_description || data.msg || `HTTP ${res.status}`);
+  return data;
+}
 
 async function login() {
-  const res = await fetch(`${SERVER_URL}/api/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: env.ADMIN_EMAIL, password: env.ADMIN_PASSWORD })
-  });
-  if (!res.ok) {
-    console.error('Falha no login. Confira ADMIN_EMAIL/ADMIN_PASSWORD no .env.');
+  const cfgRes = await fetch(`${SERVER_URL}/api/config`).catch(() => null);
+  if (!cfgRes || !cfgRes.ok) { console.error(`Não consegui falar com ${SERVER_URL}. Confira o SERVER_URL no .env.`); process.exit(1); }
+  supabaseConfig = await cfgRes.json();
+  try {
+    session = await supabaseToken({ email: env.ADMIN_EMAIL, password: env.ADMIN_PASSWORD }, 'password');
+  } catch (err) {
+    console.error(`Falha no login (${err.message}). Confira ADMIN_EMAIL e ADMIN_PASSWORD no .env.`);
     process.exit(1);
   }
-  const setCookie = res.headers.get('set-cookie');
-  if (!setCookie) { console.error('Login não retornou sessão.'); process.exit(1); }
-  sessionCookie = setCookie.split(';')[0]; // "token=xxxxx"
   console.log('✔ Login feito com sucesso.\n');
 }
 
-async function fetchAlbums() {
-  const res = await fetch(`${SERVER_URL}/api/albums`, { headers: { Cookie: sessionCookie } });
-  if (!res.ok) { console.error('Não foi possível listar os álbuns.'); process.exit(1); }
-  return res.json();
+// Chamada à API com o token; renova o login sozinho quando o token vence (a cada ~1h)
+async function api(pathAndQuery, options = {}, retry = true) {
+  const res = await fetch(`${SERVER_URL}/${pathAndQuery}`, {
+    ...options,
+    headers: { ...(options.headers || {}), Authorization: `Bearer ${session.access_token}` }
+  });
+  if (res.status === 401 && retry) {
+    session = await supabaseToken({ refresh_token: session.refresh_token }, 'refresh_token')
+      .catch(() => supabaseToken({ email: env.ADMIN_EMAIL, password: env.ADMIN_PASSWORD }, 'password'));
+    return api(pathAndQuery, options, false);
+  }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
 }
 
 async function pickAlbum() {
-  const albums = await fetchAlbums();
+  const albums = await api('api/albums');
   if (!albums.length) {
     console.error('Nenhum álbum cadastrado ainda. Crie um no painel admin primeiro.');
     process.exit(1);
@@ -68,25 +89,30 @@ async function pickAlbum() {
   return album;
 }
 
-async function uploadFile(albumId, filePath) {
+async function pickSection(albumId) {
+  const detail = await api(`api/albums/${albumId}`);
+  if (!detail.sections.length) return null;
+  console.log('\nSeções do álbum:\n');
+  detail.sections.forEach((s, i) => console.log(`  ${i + 1}. ${s.title}`));
+  const choice = await ask('Número da seção (Enter = fotos gerais, sem seção): ');
+  return detail.sections[Number(choice) - 1] || null;
+}
+
+const MIME = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.tif': 'image/tiff', '.tiff': 'image/tiff', '.webp': 'image/webp' };
+
+async function uploadFile(albumId, sectionId, filePath) {
   const buffer = fs.readFileSync(filePath);
   const filename = path.basename(filePath);
-  const ext = path.extname(filename).toLowerCase();
-  const mimeMap = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.tif': 'image/tiff', '.tiff': 'image/tiff', '.webp': 'image/webp' };
+  const params = new URLSearchParams({ name: filename });
+  if (sectionId) params.set('section', String(sectionId));
 
-  const form = new FormData();
-  form.append('photos', new Blob([buffer], { type: mimeMap[ext] || 'application/octet-stream' }), filename);
-
-  const res = await fetch(`${SERVER_URL}/api/albums/${albumId}/photos`, {
-    method: 'POST',
-    headers: { Cookie: sessionCookie },
-    body: form
+  // 1) foto original  2) miniatura de 900px, que registra a foto no álbum
+  const { key } = await api(`api/albums/${albumId}/files?kind=photo&${params}`, {
+    method: 'PUT', headers: { 'Content-Type': MIME[path.extname(filename).toLowerCase()] || 'application/octet-stream' }, body: buffer
   });
-
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || `HTTP ${res.status}`);
-  }
+  const thumb = await sharp(buffer).rotate().resize(900, 900, { fit: 'inside', withoutEnlargement: true }).jpeg({ quality: 82 }).toBuffer();
+  params.set('for', key);
+  await api(`api/albums/${albumId}/files?kind=thumb&${params}`, { method: 'PUT', headers: { 'Content-Type': 'image/jpeg' }, body: thumb });
 }
 
 // Espera o arquivo "parar de crescer" antes de subir — evita pegar um export ainda sendo escrito
@@ -102,7 +128,7 @@ async function waitUntilStable(filePath, tries = 10) {
   return true;
 }
 
-async function watchFolder(folderPath, albumId) {
+async function watchFolder(folderPath, albumId, sectionId) {
   const uploadedDir = path.join(folderPath, '_enviado');
   if (!fs.existsSync(uploadedDir)) fs.mkdirSync(uploadedDir);
 
@@ -119,7 +145,7 @@ async function watchFolder(folderPath, albumId) {
     if (!stable || !fs.existsSync(fullPath)) { processing.delete(filename); return; }
 
     try {
-      await uploadFile(albumId, fullPath);
+      await uploadFile(albumId, sectionId, fullPath);
       fs.renameSync(fullPath, path.join(uploadedDir, filename));
       console.log(`✔ Enviado: ${filename}`);
     } catch (err) {
@@ -143,17 +169,18 @@ async function watchFolder(folderPath, albumId) {
 }
 
 (async () => {
-  console.log('=== Wedding Flix — Upload automático do Lightroom ===\n');
+  console.log('=== DunaStudio — Upload automático do Lightroom ===\n');
   await login();
   const album = await pickAlbum();
-  console.log(`\nÁlbum escolhido: ${album.title}\n`);
+  const section = await pickSection(album.id);
+  console.log(`\nÁlbum escolhido: ${album.title}${section ? ` → ${section.title}` : ''}\n`);
 
-  const defaultFolder = path.join(require('os').homedir(), 'Desktop', 'Exportar-WeddingFlix');
+  const defaultFolder = path.join(require('os').homedir(), 'Desktop', 'Exportar-DunaStudio');
   const folderInput = await ask(`Pasta pra vigiar (Enter pra usar "${defaultFolder}"): `);
   const folderPath = folderInput.trim() || defaultFolder;
 
   if (!fs.existsSync(folderPath)) fs.mkdirSync(folderPath, { recursive: true });
 
   rl.close();
-  await watchFolder(folderPath, album.id);
+  await watchFolder(folderPath, album.id, section ? section.id : null);
 })();

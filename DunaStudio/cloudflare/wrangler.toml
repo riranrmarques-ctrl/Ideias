@@ -1,0 +1,28 @@
+# Configuração do Worker do DunaStudio (publicado pelo GitHub Actions — ver README)
+name = "dunastudio"
+main = "worker.js"
+compatibility_date = "2026-09-01"
+
+# O Worker responde só por dunabranding.com.br/studio (as outras rotas do domínio continuam como estão)
+routes = [
+  { pattern = "dunabranding.com.br/studio*", zone_name = "dunabranding.com.br" }
+]
+
+# Mantém as variáveis que forem criadas pelo painel do Cloudflare
+keep_vars = true
+
+[[r2_buckets]]
+binding = "HOSP"
+bucket_name = "hosp"
+
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "dunastudio"
+
+[vars]
+SITE_URL = "https://dunabranding.com.br/studio"
+# SUPABASE_URL, SUPABASE_ANON_KEY e ADMIN_EMAILS são configurados no painel do Worker
+# (Settings → Variables and Secrets), junto com os segredos.
+
+[observability]
+enabled = true
