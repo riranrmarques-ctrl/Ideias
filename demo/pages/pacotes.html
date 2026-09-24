@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<script src="js/mock-api.js" charset="utf-8"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pacotes — Duna</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-spacer"></div>
+    <a href="portfolio.html" class="brand"><img src="img/logo-duna.png" alt="Duna" class="brand-logo"></a>
+    <div class="topbar-menu">
+      <button class="menu-toggle" id="menuToggle">☰</button>
+      <div class="menu-dropdown" id="menuDropdown">
+        <a href="portfolio.html">Portfólio</a>
+        <a href="minha-area.html" id="myAreaLink">Minha área</a>
+        <a href="admin.html" id="adminLink" style="display:none;">Painel admin</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="packages-intro">
+    <h1>Escolha seu pacote</h1>
+    <p>Personalize os itens conforme a necessidade do seu casamento e contrate direto por aqui.</p>
+  </div>
+
+  <div class="packages-grid" id="packagesGrid">
+    <p style="color:var(--ink-dim); padding:0 40px;">Carregando pacotes...</p>
+  </div>
+
+  <script src="js/auth-guard.js" charset="utf-8"></script>
+  <script src="js/pacotes.js" charset="utf-8"></script>
+</body>
+</html>

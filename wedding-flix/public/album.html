@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Álbum — Duna</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-spacer"></div>
+    <a href="#" class="brand" id="backLink"><img src="/img/logo-duna.png" alt="Duna" class="brand-logo"></a>
+    <div class="topbar-menu">
+      <button class="menu-toggle" id="menuToggle">☰</button>
+      <div class="menu-dropdown" id="menuDropdown">
+        <a href="/admin.html" id="adminLink" style="display:none;">Painel admin</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="album-header" id="albumHeader"></div>
+  <div class="manage-panel" id="managePanel" style="display:none;"></div>
+  <main class="photo-grid" id="photoGrid"></main>
+
+  <div class="album-comments" id="albumComments" style="display:none;">
+    <h2 style="font-size:17px; margin-bottom:14px;">Comentários</h2>
+    <div id="commentsList"></div>
+    <form id="commentForm">
+      <textarea id="commentInput" placeholder="Escreva um comentário sobre o álbum..." required></textarea>
+      <button type="submit" class="btn btn-primary" style="margin-top:8px;">Comentar</button>
+    </form>
+  </div>
+
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightboxClose">✕</button>
+    <button class="lightbox-nav lightbox-prev" id="lightboxPrev">‹</button>
+    <img id="lightboxImg" src="" alt="">
+    <button class="lightbox-nav lightbox-next" id="lightboxNext">›</button>
+    <div class="lightbox-footer">
+      <button class="btn btn-ghost" id="lightboxDownload">Baixar esta foto</button>
+      <button class="btn btn-ghost" id="lightboxOrder">🖼️ Pedir produto físico</button>
+    </div>
+  </div>
+
+  <div class="order-panel" id="orderPanel" style="display:none;"></div>
+
+  <script src="/js/auth-guard.js"></script>
+  <script src="/js/album.js"></script>
+</body>
+</html>

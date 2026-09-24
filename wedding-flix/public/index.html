@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Duna</title>
+<link rel="stylesheet" href="/css/styles.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.15/hls.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-spacer"></div>
+    <a href="/index.html" class="brand"><img src="/img/logo-duna.png" alt="Duna" class="brand-logo"></a>
+    <div class="topbar-menu">
+      <button class="menu-toggle" id="menuToggle">☰</button>
+      <div class="menu-dropdown" id="menuDropdown">
+        <a href="/">Portfólio</a>
+        <a href="/pacotes.html">Pacotes</a>
+        <a href="/depoimento.html">Deixar depoimento</a>
+        <a href="/admin.html" id="adminLink" style="display:none;">Painel admin</a>
+        <button id="logoutBtn">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <div id="heroSection"></div>
+  <div style="padding:0 40px; margin-top:-4px;">
+    <h2 style="font-size:15px; color:var(--ink-dim); font-weight:500; font-family:'Inter',sans-serif;">Minha área — sua entrega</h2>
+  </div>
+  <main class="rows" id="rows"></main>
+
+  <script src="/js/auth-guard.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "lightroom-uploader",
+  "version": "1.0.0",
+  "description": "Vigia uma pasta de exportação do Lightroom e sobe as fotos automaticamente pro álbum escolhido no Wedding Flix",
+  "main": "index.js",
+  "type": "commonjs",
+  "engines": { "node": ">=18" },
+  "scripts": { "start": "node index.js" },
+  "dependencies": {}
+}

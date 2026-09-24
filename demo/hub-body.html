@@ -1,0 +1,52 @@
+<div id="hub"><div class="wrap">
+  <header>
+    <img class="logo" src="img/logo-duna.png" alt="Duna">
+    <div class="eyebrow">Versão de teste</div>
+    <h1>Wedding Flix, <em>navegável no navegador</em></h1>
+    <p class="lead">Este é o site completo do estúdio rodando com dados de exemplo: três casais, filmes, álbuns com seções, contratos, pacotes e loja. Escolha como quer entrar. Dá pra trocar a qualquer momento pela barra no rodapé de cada página.</p>
+  </header>
+
+  <section class="roles" aria-label="Escolha como entrar">
+    <article class="role">
+      <h2>Visitante</h2>
+      <div class="who">Sem login</div>
+      <ul>
+        <li>Portfólio público com filmes e álbuns</li>
+        <li>Depoimentos dos casais</li>
+        <li>Pacotes com personalização e checkout</li>
+      </ul>
+      <button type="button" id="goVisitor" onclick="__demoAs('visitante')">Abrir o portfólio</button>
+    </article>
+    <article class="role">
+      <h2>Cliente</h2>
+      <div class="who">ana.pedro@email.com</div>
+      <ul>
+        <li>Minha área com filme, trailer e álbum</li>
+        <li>Fotos por seção, comentários e links de compartilhamento</li>
+        <li>Pedido de produto físico a partir de uma foto</li>
+      </ul>
+      <button type="button" id="goClient" onclick="__demoAs('cliente')">Entrar como Ana &amp; Pedro</button>
+    </article>
+    <article class="role">
+      <h2>Admin</h2>
+      <div class="who">admin@duna.demo</div>
+      <ul>
+        <li>Cadastro de filmes, álbuns e seções</li>
+        <li>Contratos, pacotes, produtos e vendas</li>
+        <li>Aprovação de depoimentos e contas de clientes</li>
+      </ul>
+      <button type="button" id="goAdmin" onclick="__demoAs('admin')">Abrir o painel admin</button>
+    </article>
+  </section>
+
+  <section class="notes">
+    <h3>O que muda na demonstração</h3>
+    <ul>
+      <li>Não há servidor: tudo o que você cria ou altera fica salvo só neste navegador. “Restaurar dados”, no rodapé, volta ao estado inicial.</li>
+      <li>As imagens são ilustrações geradas. Fotos que você enviar pelo admin ou pela página de convidados aparecem de verdade no álbum.</li>
+      <li>Os filmes não tocam, porque o vídeo real fica no Cloudflare R2. Downloads e o pagamento do Mercado Pago são simulados.</li>
+      <li>Para testar a assinatura, entre como <code>julia.rafael@email.com</code> (senha <code>demo123</code>) e abra o contrato pendente.</li>
+    </ul>
+  </section>
+</div>
+</div>

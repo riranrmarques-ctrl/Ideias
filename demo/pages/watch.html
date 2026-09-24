@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<script src="js/mock-api.js" charset="utf-8"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assistindo — Duna</title>
+<link rel="stylesheet" href="css/styles.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.15/hls.min.js"></script>
+</head>
+<body>
+  <div class="watch-wrap">
+    <div class="watch-topbar">
+      <a href="minha-area.html" class="back">←</a>
+      <h1 id="videoTitleTop">Carregando…</h1>
+    </div>
+    <video id="player" controls playsinline></video>
+    <div class="watch-info">
+      <h2 id="videoTitle"></h2>
+      <p id="videoDescription"></p>
+      <span class="quality-tag" id="qualityTag" style="display:none;"></span>
+    </div>
+  </div>
+
+  <script src="js/auth-guard.js" charset="utf-8"></script>
+  <script src="js/watch.js" charset="utf-8"></script>
+</body>
+</html>

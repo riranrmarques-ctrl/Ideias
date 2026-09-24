@@ -1,0 +1,26 @@
+{
+  "name": "wedding-flix",
+  "version": "1.0.0",
+  "description": "Portal estilo Netflix para entrega de filmes de casamento, com streaming adaptativo (HLS) via Cloudflare R2",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.658.0",
+    "@aws-sdk/lib-storage": "^3.658.0",
+    "archiver": "^7.0.1",
+    "better-sqlite3": "^11.3.0",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.15",
+    "pdfkit": "^0.15.0",
+    "sharp": "^0.33.5"
+  }
+}

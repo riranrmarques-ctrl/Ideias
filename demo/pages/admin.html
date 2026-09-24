@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<script src="js/mock-api.js" charset="utf-8"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel admin — Duna</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-spacer"></div>
+    <a href="minha-area.html" class="brand"><img src="img/logo-duna.png" alt="Duna" class="brand-logo"></a>
+    <div class="topbar-menu">
+      <button class="menu-toggle" id="menuToggle">☰</button>
+      <div class="menu-dropdown" id="menuDropdown">
+        <a href="minha-area.html">Ver catálogo</a>
+        <button id="logoutBtn">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-wrap">
+    <h1>Painel administrativo</h1>
+    <p class="sub">Adicione filmes de casamento e gerencie o acesso dos clientes.</p>
+
+    <div class="panel">
+      <h2>Novo vídeo</h2>
+      <p class="sub" style="margin-bottom:18px;">A orientação é detectada automaticamente: vídeos <b>verticais</b> viram capas no topo do catálogo; vídeos <b>horizontais</b> entram nos carrosséis por categoria abaixo.</p>
+      <form id="uploadForm">
+        <div class="grid-2">
+          <div class="field">
+            <label>Título</label>
+            <input type="text" id="title" required placeholder="Ana &amp; Pedro — 12/07/2026">
+          </div>
+          <div class="field">
+            <label>Categoria</label>
+            <input type="text" id="category" value="Casamentos" required>
+          </div>
+        </div>
+        <div class="field">
+          <label>Quem pode ver este vídeo</label>
+          <select id="videoOwner">
+            <option value="">Público — aparece no portfólio pra qualquer visitante</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Descrição</label>
+          <textarea id="description" placeholder="Cerimônia e festa completas, making-of..."></textarea>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label>Vídeo original (será convertido em HLS 1080p–4K)</label>
+            <div class="file-field" id="videoDrop">Arraste o vídeo aqui ou clique para escolher</div>
+            <input type="file" id="videoInput" accept="video/*" style="display:none;">
+          </div>
+          <div class="field">
+            <label>Capa (imagem)</label>
+            <div class="file-field" id="posterDrop">Arraste a capa aqui ou clique para escolher</div>
+            <input type="file" id="posterInput" accept="image/*" style="display:none;">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" id="submitBtn" style="margin-top:8px;">Enviar e processar</button>
+      </form>
+    </div>
+
+    <div class="panel">
+      <h2>Filmes cadastrados</h2>
+      <table id="videosTable">
+        <thead><tr><th>Título</th><th>Categoria</th><th>Tipo</th><th>Acesso</th><th>Status</th><th>Qualidade</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h2>Novo álbum de fotos</h2>
+      <form id="albumForm">
+        <div class="grid-2">
+          <div class="field">
+            <label>Título do álbum</label>
+            <input type="text" id="albumTitle" required placeholder="Ana &amp; Pedro — Ensaio">
+          </div>
+          <div class="field">
+            <label>Categoria</label>
+            <input type="text" id="albumCategory" value="Casamentos" required>
+          </div>
+        </div>
+        <div class="field">
+          <label>Descrição</label>
+          <textarea id="albumDescription" placeholder="Fotos da cerimônia e making-of..."></textarea>
+        </div>
+        <div class="field">
+          <label>Quem pode ver este álbum</label>
+          <select id="albumOwner">
+            <option value="">Público — aparece no portfólio pra qualquer visitante</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Criar álbum</button>
+      </form>
+    </div>
+
+    <div class="panel">
+      <h2>Álbuns cadastrados</h2>
+      <table id="albumsTable">
+        <thead><tr><th>Título</th><th>Categoria</th><th>Acesso</th><th>Fotos</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div id="photoUploadArea" style="display:none; margin-top:18px; padding-top:18px; border-top:1px solid rgba(238,243,249,0.08);">
+        <p style="font-size:13px; color:var(--ink-dim); margin-bottom:10px;">Adicionando fotos em: <b id="photoUploadAlbumTitle" style="color:var(--ink);"></b></p>
+
+        <div class="field">
+          <label>Seção (opcional) — ex: Make-of, Pré-wedding, Recepção</label>
+          <select id="sectionSelect">
+            <option value="">Sem seção (fotos gerais)</option>
+          </select>
+        </div>
+        <div style="display:flex; gap:8px; margin-bottom:14px;">
+          <input type="text" id="newSectionTitle" placeholder="Nome da nova seção (ex: Making-of)" style="flex:1;">
+          <button type="button" class="btn btn-ghost" id="createSectionBtn">+ Criar seção</button>
+        </div>
+
+        <input type="file" id="photoFilesInput" accept="image/*" multiple>
+        <button class="btn btn-ghost" id="uploadPhotosBtn" style="margin-top:10px;">Enviar fotos</button>
+        <button class="icon-btn" id="cancelPhotoUpload" style="margin-top:10px;">cancelar</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Novo pacote de serviço</h2>
+      <div class="field">
+        <label>Título do pacote</label>
+        <input type="text" id="packageTitle" placeholder="Pacote Essencial">
+      </div>
+      <div class="field">
+        <label>Descrição curta</label>
+        <input type="text" id="packageDescription" placeholder="Ideal para cerimônias íntimas">
+      </div>
+      <div class="field">
+        <label>Itens do pacote</label>
+        <textarea id="packageItems" style="min-height:140px; font-family:monospace; font-size:12.5px;" placeholder="2 fotógrafos | 0 | incluso
+Álbum impresso 30x30cm | 0 | incluso
+6 horas de cobertura | 0 | incluso
+Hora extra de cobertura | 150 | opcional
+Making-of | 400 | opcional
+Segundo álbum (presente) | 300 | opcional"></textarea>
+        <p style="font-size:12px; color:var(--ink-dim); margin-top:6px;">Um item por linha: <code>Nome | valor | incluso ou opcional</code>. Itens "incluso" formam o preço padrão do pacote; "opcional" o cliente pode adicionar na personalização. Pra item incluso sem custo extra, use valor 0 — o valor dele fica embutido, então pra refletir o preço real do pacote inclua o valor de cada item incluso também.</p>
+      </div>
+      <button class="btn btn-primary" id="createPackageBtn" type="button">Criar pacote</button>
+    </div>
+
+    <div class="panel">
+      <h2>Pacotes cadastrados</h2>
+      <table id="packagesTable">
+        <thead><tr><th>Título</th><th>Preço padrão</th><th>Itens</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h2>Vendas (Mercado Pago)</h2>
+      <table id="ordersTable">
+        <thead><tr><th>Pacote</th><th>Cliente</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h2>Produtos físicos (loja)</h2>
+      <div class="grid-2">
+        <div class="field"><label>Nome do produto</label><input type="text" id="productTitle" placeholder="Porta-retrato 15x21cm"></div>
+        <div class="field"><label>Preço (R$)</label><input type="number" id="productPrice" placeholder="89.90"></div>
+      </div>
+      <div class="field"><label>Descrição</label><input type="text" id="productDescription" placeholder="Moldura em madeira com a foto escolhida"></div>
+      <button class="btn btn-primary" id="createProductBtn" type="button">Adicionar produto</button>
+      <table style="margin-top:18px;" id="productsTable">
+        <thead><tr><th>Produto</th><th>Preço</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h2>Pedidos de produtos físicos</h2>
+      <table id="productOrdersTable">
+        <thead><tr><th>Produto</th><th>Cliente</th><th>Valor</th><th>Status</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h2>Depoimentos pendentes</h2>
+      <table id="testimonialsTable">
+        <thead><tr><th>Cliente</th><th>Depoimento</th><th>Status</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h2>Novo contrato</h2>
+      <div class="grid-2">
+        <div class="field">
+          <label>Cliente</label>
+          <select id="contractOwner"><option value="">Selecione um cliente</option></select>
+        </div>
+        <div class="field">
+          <label>Título do contrato</label>
+          <input type="text" id="contractTitle" placeholder="Contrato de Prestação de Serviços — Ana &amp; Pedro">
+        </div>
+      </div>
+      <div class="field">
+        <label>Texto do contrato</label>
+        <textarea id="contractBody" style="min-height:120px;" placeholder="Cláusulas, condições de pagamento, prazos de entrega..."></textarea>
+      </div>
+      <div class="field">
+        <label>Eventos contratados</label>
+        <textarea id="contractEvents" style="min-height:160px; font-family:monospace; font-size:12.5px;" placeholder="Cerimônia | 14/11/2026
+2 fotógrafos
+Álbum impresso 30x30cm
+6 horas de cobertura
+
+Recepção | 14/11/2026
+1 fotógrafo
+Making-of incluso"></textarea>
+        <p style="font-size:12px; color:var(--ink-dim); margin-top:6px;">Um evento por bloco (separado por linha em branco). Primeira linha: <code>Nome do evento | data</code> (data opcional). As linhas seguintes são os itens contratados daquele evento.</p>
+      </div>
+      <button class="btn btn-primary" id="createContractBtn" type="button">Criar contrato</button>
+    </div>
+
+    <div class="panel">
+      <h2>Contratos cadastrados</h2>
+      <table id="contractsTable">
+        <thead><tr><th>Título</th><th>Cliente</th><th>Status</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h2>Contas de clientes</h2>
+      <form id="userForm" class="grid-2" style="margin-bottom:16px;">
+        <div class="field"><label>Email do cliente</label><input type="email" id="userEmail" required></div>
+        <div class="field"><label>Senha inicial</label><input type="text" id="userPassword" required minlength="6"></div>
+        <button type="submit" class="btn btn-ghost" style="grid-column: span 2;">Criar acesso</button>
+      </form>
+      <table id="usersTable">
+        <thead><tr><th>Email</th><th>Criado em</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="js/auth-guard.js" charset="utf-8"></script>
+  <script src="js/admin.js" charset="utf-8"></script>
+</body>
+</html>
