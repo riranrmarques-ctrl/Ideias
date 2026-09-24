@@ -17,7 +17,7 @@ function ownerOptionsHTML() {
 }
 
 async function loadClientsForDropdowns() {
-  const res = await fetch('/api/auth/users');
+  const res = await fetch('api/auth/users');
   if (!res.ok) return;
   const users = await res.json();
   clients = users.filter(u => !u.is_admin);
@@ -80,7 +80,7 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
   if (selectedPosterFile) fd.append('poster', selectedPosterFile);
 
   try {
-    const res = await fetch('/api/videos', { method: 'POST', body: fd });
+    const res = await fetch('api/videos', { method: 'POST', body: fd });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Erro ao enviar');
     showToast('Enviado! Convertendo em HLS (1080p–4K) em segundo plano...');
@@ -108,7 +108,7 @@ function statusPill(status) {
 }
 
 async function loadVideos() {
-  const res = await fetch('/api/videos');
+  const res = await fetch('api/videos');
   const videos = await res.json();
   const tbody = document.querySelector('#videosTable tbody');
   tbody.innerHTML = videos.map(v => `
@@ -130,7 +130,7 @@ async function loadVideos() {
 
 window.deleteVideo = async (id, title) => {
   if (!confirm(`Excluir "${title}"? Isso remove o vídeo do R2 também.`)) return;
-  await fetch(`/api/videos/${id}`, { method: 'DELETE' });
+  await fetch(`api/videos/${id}`, { method: 'DELETE' });
   showToast('Excluído');
   loadVideos();
 };
@@ -144,7 +144,7 @@ document.getElementById('albumForm').addEventListener('submit', async (e) => {
     description: document.getElementById('albumDescription').value,
     ownerUserId: document.getElementById('albumOwner').value
   };
-  const res = await fetch('/api/albums', {
+  const res = await fetch('api/albums', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
@@ -158,7 +158,7 @@ document.getElementById('albumForm').addEventListener('submit', async (e) => {
 });
 
 async function loadAlbums() {
-  const res = await fetch('/api/albums');
+  const res = await fetch('api/albums');
   const albums = await res.json();
   const tbody = document.querySelector('#albumsTable tbody');
   tbody.innerHTML = albums.map(a => `
@@ -169,14 +169,14 @@ async function loadAlbums() {
       <td id="photoCount-${a.id}">…</td>
       <td>
         <button class="icon-btn" style="color:var(--gold);" onclick="openPhotoUpload(${a.id}, '${a.title.replace(/'/g, "\\'")}')">+ fotos</button>
-        <a class="icon-btn" style="color:var(--gold); text-decoration:none;" href="/album.html?id=${a.id}" target="_blank">ver</a>
+        <a class="icon-btn" style="color:var(--gold); text-decoration:none;" href="album.html?id=${a.id}" target="_blank">ver</a>
         <button class="icon-btn" onclick="deleteAlbum(${a.id}, '${a.title.replace(/'/g, "\\'")}')">excluir</button>
       </td>
     </tr>
   `).join('') || `<tr><td colspan="5" style="color:var(--ink-dim);">Nenhum álbum cadastrado ainda.</td></tr>`;
 
   for (const a of albums) {
-    fetch(`/api/albums/${a.id}`).then(r => r.json()).then(full => {
+    fetch(`api/albums/${a.id}`).then(r => r.json()).then(full => {
       const cell = document.getElementById(`photoCount-${a.id}`);
       if (cell) cell.textContent = full.allPhotosCount ?? 0;
     });
@@ -192,7 +192,7 @@ window.openPhotoUpload = async (albumId, title) => {
 };
 
 async function loadSectionsForAlbum(albumId) {
-  const res = await fetch(`/api/albums/${albumId}`);
+  const res = await fetch(`api/albums/${albumId}`);
   const album = await res.json();
   const select = document.getElementById('sectionSelect');
   select.innerHTML = `<option value="">Sem seção (fotos gerais)</option>` +
@@ -202,7 +202,7 @@ async function loadSectionsForAlbum(albumId) {
 document.getElementById('createSectionBtn').addEventListener('click', async () => {
   const title = document.getElementById('newSectionTitle').value.trim();
   if (!title || !activeAlbumIdForUpload) { showToast('Digite o nome da seção'); return; }
-  const res = await fetch(`/api/albums/${activeAlbumIdForUpload}/sections`, {
+  const res = await fetch(`api/albums/${activeAlbumIdForUpload}/sections`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ title })
@@ -233,7 +233,7 @@ document.getElementById('uploadPhotosBtn').addEventListener('click', async () =>
   btn.disabled = true;
   btn.textContent = 'Enviando...';
   try {
-    const res = await fetch(`/api/albums/${activeAlbumIdForUpload}/photos`, { method: 'POST', body: fd });
+    const res = await fetch(`api/albums/${activeAlbumIdForUpload}/photos`, { method: 'POST', body: fd });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Erro no upload');
     showToast(`Enviando ${data.uploading} foto(s) — pode levar alguns minutos.`);
@@ -249,7 +249,7 @@ document.getElementById('uploadPhotosBtn').addEventListener('click', async () =>
 
 window.deleteAlbum = async (id, title) => {
   if (!confirm(`Excluir álbum "${title}"? Isso remove todas as fotos do R2 também.`)) return;
-  await fetch(`/api/albums/${id}`, { method: 'DELETE' });
+  await fetch(`api/albums/${id}`, { method: 'DELETE' });
   showToast('Álbum excluído');
   loadAlbums();
 };
@@ -273,7 +273,7 @@ document.getElementById('createPackageBtn').addEventListener('click', async () =
   if (!title) { showToast('Digite o título do pacote'); return; }
 
   const items = itemsText ? parsePackageItems(itemsText) : [];
-  const res = await fetch('/api/packages', {
+  const res = await fetch('api/packages', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ title, description, items })
@@ -289,7 +289,7 @@ document.getElementById('createPackageBtn').addEventListener('click', async () =
 });
 
 async function loadPackages() {
-  const res = await fetch('/api/packages');
+  const res = await fetch('api/packages');
   if (!res.ok) return;
   const packages = await res.json();
   const tbody = document.querySelector('#packagesTable tbody');
@@ -305,13 +305,13 @@ async function loadPackages() {
 
 window.deletePackage = async (id, title) => {
   if (!confirm(`Excluir pacote "${title}"?`)) return;
-  await fetch(`/api/packages/${id}`, { method: 'DELETE' });
+  await fetch(`api/packages/${id}`, { method: 'DELETE' });
   showToast('Pacote excluído');
   loadPackages();
 };
 
 async function loadOrders() {
-  const res = await fetch('/api/packages/orders/all');
+  const res = await fetch('api/packages/orders/all');
   if (!res.ok) return;
   const orders = await res.json();
   const tbody = document.querySelector('#ordersTable tbody');
@@ -334,7 +334,7 @@ document.getElementById('createProductBtn').addEventListener('click', async () =
   const price = document.getElementById('productPrice').value;
   const description = document.getElementById('productDescription').value.trim();
   if (!title || !price) { showToast('Preencha nome e preço'); return; }
-  const res = await fetch('/api/products', {
+  const res = await fetch('api/products', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ title, price, description })
   });
@@ -348,7 +348,7 @@ document.getElementById('createProductBtn').addEventListener('click', async () =
 });
 
 async function loadProducts() {
-  const res = await fetch('/api/products');
+  const res = await fetch('api/products');
   if (!res.ok) return;
   const products = await res.json();
   document.querySelector('#productsTable tbody').innerHTML = products.map(p => `
@@ -362,12 +362,12 @@ async function loadProducts() {
 
 window.deleteProduct = async (id, title) => {
   if (!confirm(`Excluir "${title}" da loja?`)) return;
-  await fetch(`/api/products/${id}`, { method: 'DELETE' });
+  await fetch(`api/products/${id}`, { method: 'DELETE' });
   loadProducts();
 };
 
 async function loadProductOrders() {
-  const res = await fetch('/api/products/orders/all');
+  const res = await fetch('api/products/orders/all');
   if (!res.ok) return;
   const orders = await res.json();
   const statusLabel = { approved: 'pago', pending: 'aguardando', rejected: 'recusado' };
@@ -384,7 +384,7 @@ async function loadProductOrders() {
 
 // ---------- Depoimentos ----------
 async function loadTestimonials() {
-  const res = await fetch('/api/testimonials');
+  const res = await fetch('api/testimonials');
   if (!res.ok) return;
   const rows = await res.json();
   document.querySelector('#testimonialsTable tbody').innerHTML = rows.map(t => `
@@ -401,13 +401,13 @@ async function loadTestimonials() {
 }
 
 window.approveTestimonial = async (id) => {
-  await fetch(`/api/testimonials/${id}/approve`, { method: 'PATCH' });
+  await fetch(`api/testimonials/${id}/approve`, { method: 'PATCH' });
   showToast('Depoimento publicado no portfólio!');
   loadTestimonials();
 };
 window.deleteTestimonial = async (id) => {
   if (!confirm('Excluir este depoimento?')) return;
-  await fetch(`/api/testimonials/${id}`, { method: 'DELETE' });
+  await fetch(`api/testimonials/${id}`, { method: 'DELETE' });
   loadTestimonials();
 };
 
@@ -431,7 +431,7 @@ document.getElementById('createContractBtn').addEventListener('click', async () 
   if (!ownerUserId || !title) { showToast('Selecione o cliente e o título'); return; }
 
   const events = eventsText ? parseEventsText(eventsText) : [];
-  const res = await fetch('/api/contracts', {
+  const res = await fetch('api/contracts', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ownerUserId, title, body, events })
@@ -447,7 +447,7 @@ document.getElementById('createContractBtn').addEventListener('click', async () 
 });
 
 async function loadContracts() {
-  const res = await fetch('/api/contracts');
+  const res = await fetch('api/contracts');
   if (!res.ok) return;
   const contracts = await res.json();
   const tbody = document.querySelector('#contractsTable tbody');
@@ -457,7 +457,7 @@ async function loadContracts() {
       <td>${c.owner_email}</td>
       <td><span class="status-pill ${c.status === 'signed' ? 'ready' : 'processing'}">${c.status === 'signed' ? 'assinado' : 'pendente'}</span></td>
       <td>
-        <a class="icon-btn" style="color:var(--gold); text-decoration:none;" href="/contract.html?id=${c.id}" target="_blank">ver</a>
+        <a class="icon-btn" style="color:var(--gold); text-decoration:none;" href="contract.html?id=${c.id}" target="_blank">ver</a>
         <button class="icon-btn" onclick="deleteContract(${c.id}, '${c.title.replace(/'/g, "\\'")}')">excluir</button>
       </td>
     </tr>
@@ -466,7 +466,7 @@ async function loadContracts() {
 
 window.deleteContract = async (id, title) => {
   if (!confirm(`Excluir contrato "${title}"?`)) return;
-  await fetch(`/api/contracts/${id}`, { method: 'DELETE' });
+  await fetch(`api/contracts/${id}`, { method: 'DELETE' });
   showToast('Contrato excluído');
   loadContracts();
 };
@@ -477,7 +477,7 @@ document.getElementById('userForm').addEventListener('submit', async (e) => {
   const email = document.getElementById('userEmail').value;
   const password = document.getElementById('userPassword').value;
   try {
-    const res = await fetch('/api/auth/users', {
+    const res = await fetch('api/auth/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
@@ -494,7 +494,7 @@ document.getElementById('userForm').addEventListener('submit', async (e) => {
 });
 
 async function loadUsers() {
-  const res = await fetch('/api/auth/users');
+  const res = await fetch('api/auth/users');
   const users = await res.json();
   const tbody = document.querySelector('#usersTable tbody');
   const list = users.filter(u => !u.is_admin);
@@ -509,14 +509,14 @@ async function loadUsers() {
 
 window.deleteUser = async (id, email) => {
   if (!confirm(`Remover acesso de ${email}?`)) return;
-  await fetch(`/api/auth/users/${id}`, { method: 'DELETE' });
+  await fetch(`api/auth/users/${id}`, { method: 'DELETE' });
   loadUsers();
   loadClientsForDropdowns();
 };
 
 (async () => {
   const user = await requireSession();
-  if (!user.isAdmin) { window.location.href = '/index.html'; return; }
+  if (!user.isAdmin) { window.location.href = 'index.html'; return; }
   await loadClientsForDropdowns();
   loadVideos();
   loadAlbums();

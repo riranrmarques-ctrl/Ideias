@@ -1,22 +1,22 @@
 (async () => {
   const user = await trySession();
-  document.querySelector('.back').href = user ? '/index.html' : '/';
+  document.querySelector('.back').href = user ? 'index.html' : './';
 
   const params = new URLSearchParams(window.location.search);
   const videoId = params.get('id');
-  if (!videoId) { window.location.href = '/'; return; }
+  if (!videoId) { window.location.href = './'; return; }
 
-  const res = await fetch(`/api/videos/${videoId}`);
+  const res = await fetch(`api/videos/${videoId}`);
   if (res.status === 403) {
     document.querySelector('.watch-wrap').innerHTML = `
       <div class="watch-info" style="padding-top:80px; max-width:480px; margin:0 auto; text-align:center;">
         <h2>Este vídeo é privado</h2>
         <p style="margin-bottom:20px;">Faça login com a conta do cliente pra assistir.</p>
-        <a class="btn btn-primary" href="/login.html">Entrar</a>
+        <a class="btn btn-primary" href="login.html">Entrar</a>
       </div>`;
     return;
   }
-  if (!res.ok) { window.location.href = '/'; return; }
+  if (!res.ok) { window.location.href = './'; return; }
   const video = await res.json();
 
   document.getElementById('videoTitleTop').textContent = video.title;

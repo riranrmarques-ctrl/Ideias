@@ -19,7 +19,7 @@ Site completo de portfólio + entrega de casamentos: filmes (streaming adaptativ
 ## Passo a passo
 
 ```bash
-cd wedding-flix
+cd DunaStudio
 npm install
 cp .env.example .env
 ```
@@ -63,7 +63,7 @@ A conversão HLS roda no seu servidor via ffmpeg — depende da CPU disponível.
 ## Estrutura do projeto
 
 ```
-wedding-flix/
+DunaStudio/
 ├── server.js
 ├── db.js                  # usuários, vídeos, álbuns, fotos, comentários
 ├── middleware/auth.js      # sessão (obrigatória, opcional, admin)
@@ -116,3 +116,14 @@ Tem uma ferramenta separada em `lightroom-uploader/` que vigia uma pasta de expo
 - Troque `JWT_SECRET` e a senha do admin.
 - Rode atrás de HTTPS (Nginx + Let's Encrypt, ou Caddy).
 - Faça backup do `data/wedding-flix.db` regularmente.
+
+## Publicando em um caminho do domínio (ex: dunabranding.com.br/studio)
+
+O site pode ficar dentro de um caminho em vez da raiz do domínio. Para isso, no `.env`:
+
+```
+BASE_PATH=/studio
+SITE_URL=https://dunabranding.com.br/studio
+```
+
+Todas as páginas, a API (`/studio/api/...`) e o cookie de login passam a usar esse caminho. Acessar `/studio` redireciona para `/studio/`. Deixe `BASE_PATH` vazio para servir na raiz. No `lightroom-uploader`, use `SERVER_URL=https://dunabranding.com.br/studio`.

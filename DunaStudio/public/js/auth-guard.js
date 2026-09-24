@@ -3,7 +3,7 @@ window.CURRENT_USER = null;
 
 async function requireSession() {
   try {
-    const res = await fetch('/api/auth/me');
+    const res = await fetch('api/auth/me');
     if (!res.ok) throw new Error();
     const user = await res.json();
     window.CURRENT_USER = user;
@@ -11,7 +11,7 @@ async function requireSession() {
     if (adminLink && user.isAdmin) adminLink.style.display = 'block';
     return user;
   } catch {
-    window.location.href = '/login.html';
+    window.location.href = 'login.html';
     throw new Error('redirecting');
   }
 }
@@ -19,7 +19,7 @@ async function requireSession() {
 // Versão que NÃO redireciona — usada em páginas públicas (portfólio, vídeo/álbum públicos)
 async function trySession() {
   try {
-    const res = await fetch('/api/auth/me');
+    const res = await fetch('api/auth/me');
     if (!res.ok) throw new Error();
     const user = await res.json();
     window.CURRENT_USER = user;
@@ -36,8 +36,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const logoutBtn = document.getElementById('logoutBtn');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
-      await fetch('/api/auth/logout', { method: 'POST' });
-      window.location.href = '/login.html';
+      await fetch('api/auth/logout', { method: 'POST' });
+      window.location.href = 'login.html';
     });
   }
 

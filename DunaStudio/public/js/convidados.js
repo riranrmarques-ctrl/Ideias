@@ -4,7 +4,7 @@
   const content = document.getElementById('content');
   if (!token) { content.innerHTML = '<p style="text-align:center;">Link inválido.</p>'; return; }
 
-  const res = await fetch(`/api/albums/guest-upload/${token}`);
+  const res = await fetch(`api/albums/guest-upload/${token}`);
   if (!res.ok) { content.innerHTML = '<p style="text-align:center;">Este link de envio não está mais ativo.</p>'; return; }
   const album = await res.json();
 
@@ -40,7 +40,7 @@
     btn.disabled = true;
     btn.textContent = 'Enviando...';
     try {
-      const uploadRes = await fetch(`/api/albums/guest-upload/${token}/photos`, { method: 'POST', body: fd });
+      const uploadRes = await fetch(`api/albums/guest-upload/${token}/photos`, { method: 'POST', body: fd });
       const data = await uploadRes.json();
       if (!uploadRes.ok) throw new Error(data.error || 'Erro ao enviar');
       document.getElementById('status').textContent = `Obrigado! Suas ${data.uploading} foto(s) já estão a caminho do álbum. 🎉`;

@@ -7,23 +7,23 @@ function el(id) { return document.getElementById(id); }
 async function loadAlbum() {
   const params = new URLSearchParams(window.location.search);
   const albumId = params.get('id');
-  if (!albumId) { window.location.href = '/'; return; }
+  if (!albumId) { window.location.href = './'; return; }
 
   const user = await trySession();
-  el('backLink').href = user ? '/index.html' : '/';
+  el('backLink').href = user ? 'index.html' : './';
 
-  const res = await fetch(`/api/albums/${albumId}`);
+  const res = await fetch(`api/albums/${albumId}`);
   if (res.status === 403) {
     document.querySelector('main').innerHTML = '';
     el('albumHeader').innerHTML = `
       <div style="text-align:center; padding:60px 20px;">
         <h1 style="font-size:22px;">Este álbum é privado</h1>
         <p style="color:var(--ink-dim); margin:10px 0 20px;">Faça login com a conta do cliente pra ver as fotos.</p>
-        <a class="btn btn-primary" href="/login.html">Entrar</a>
+        <a class="btn btn-primary" href="login.html">Entrar</a>
       </div>`;
     return;
   }
-  if (!res.ok) { window.location.href = '/'; return; }
+  if (!res.ok) { window.location.href = './'; return; }
   albumData = await res.json();
 
   const canInteract = !!user; // download/comentário exigem login; o backend valida propriedade de fato
@@ -36,7 +36,7 @@ async function loadAlbum() {
         <p>${albumData.description || ''}</p>
       </div>
       <div style="display:flex; gap:8px; flex-shrink:0;">
-        ${canInteract ? `<a class="photo-download-btn" style="position:static; width:38px; height:38px; font-size:16px;" href="/api/albums/${albumData.id}/download" title="Baixar álbum inteiro (.zip)">⬇</a>` : ''}
+        ${canInteract ? `<a class="photo-download-btn" style="position:static; width:38px; height:38px; font-size:16px;" href="api/albums/${albumData.id}/download" title="Baixar álbum inteiro (.zip)">⬇</a>` : ''}
         ${canInteract ? `<button class="photo-download-btn" style="position:static; width:38px; height:38px; font-size:15px;" id="manageToggleBtn" title="Compartilhar e convidados">⚙</button>` : ''}
       </div>
     </div>
@@ -50,7 +50,7 @@ async function loadAlbum() {
       const globalIndex = albumData.__flatPhotos.findIndex(fp => fp.id === p.id);
       return `
         <div class="photo-thumb" style="background-image:url('${p.thumb_url}')" onclick="openLightbox(${globalIndex})">
-          ${canInteract ? `<a class="photo-download-btn" href="/api/albums/photos/${p.id}/download" onclick="event.stopPropagation()" title="Baixar esta foto">⬇</a>` : ''}
+          ${canInteract ? `<a class="photo-download-btn" href="api/albums/photos/${p.id}/download" onclick="event.stopPropagation()" title="Baixar esta foto">⬇</a>` : ''}
         </div>`;
     }).join('')}</div>`;
   }
@@ -114,27 +114,27 @@ function setupManagePanel() {
       `;
       document.getElementById('genAlbumLinkBtn').addEventListener('click', async () => {
         const allow = document.getElementById('albumAllowDownload').checked;
-        const res = await fetch(`/api/albums/${albumData.id}/share`, {
+        const res = await fetch(`api/albums/${albumData.id}/share`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ allowDownload: allow })
         });
         const data = await res.json();
         if (res.ok) {
-          const url = `${window.location.origin}/compartilhado.html?t=${data.token}`;
+          const url = `${window.location.href.replace(/[^/]*$/, "")}compartilhado.html?t=${data.token}`;
           const box = document.getElementById('albumLinkBox');
           box.style.display = 'block';
           box.innerHTML = `${url} <button class="icon-btn" style="color:var(--gold);" onclick="navigator.clipboard.writeText('${url}'); this.textContent='copiado!'">copiar</button>`;
         }
       });
       document.getElementById('guestUploadToggle').addEventListener('change', async (e) => {
-        const res = await fetch(`/api/albums/${albumData.id}/guest-upload/toggle`, {
+        const res = await fetch(`api/albums/${albumData.id}/guest-upload/toggle`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ enabled: e.target.checked })
         });
         const data = await res.json();
         const box = document.getElementById('guestLinkBox');
         if (data.token) {
-          const url = `${window.location.origin}/convidados.html?t=${data.token}`;
+          const url = `${window.location.href.replace(/[^/]*$/, "")}convidados.html?t=${data.token}`;
           box.style.display = 'block';
           box.innerHTML = `${url} <button class="icon-btn" style="color:var(--gold);" onclick="navigator.clipboard.writeText('${url}'); this.textContent='copiado!'">copiar</button>`;
         } else {
@@ -150,13 +150,13 @@ function setupManagePanel() {
 
 window.shareSection = async (sectionId) => {
   const allow = confirm('Permitir que quem receber o link também baixe as fotos desta seção?\n\nOK = sim, permitir download\nCancelar = só visualização');
-  const res = await fetch(`/api/albums/${albumData.id}/sections/${sectionId}/share`, {
+  const res = await fetch(`api/albums/${albumData.id}/sections/${sectionId}/share`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ allowDownload: allow })
   });
   const data = await res.json();
   if (res.ok) {
-    const url = `${window.location.origin}/compartilhado.html?t=${data.token}`;
+    const url = `${window.location.href.replace(/[^/]*$/, "")}compartilhado.html?t=${data.token}`;
     navigator.clipboard.writeText(url).catch(() => {});
     alert(`Link copiado!\n\n${url}`);
   }
@@ -164,7 +164,7 @@ window.shareSection = async (sectionId) => {
 
 // ---------- Pedido de produto físico ----------
 async function openOrderPanel(photo) {
-  const res = await fetch('/api/products');
+  const res = await fetch('api/products');
   const products = res.ok ? await res.json() : [];
   const panel = el('orderPanel');
 
@@ -205,7 +205,7 @@ async function openOrderPanel(photo) {
     const btn = document.getElementById('confirmOrderBtn');
     btn.disabled = true; btn.textContent = 'Redirecionando...';
     try {
-      const res = await fetch(`/api/products/${productId}/order`, {
+      const res = await fetch(`api/products/${productId}/order`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ photoId: photo.id, albumId: albumData.id, quantity, payerName, payerEmail })
       });
@@ -230,7 +230,7 @@ function renderLightbox() {
   el('lightboxImg').src = photo.url;
   el('lightboxDownload').style.display = canDownload ? 'inline-flex' : 'none';
   el('lightboxDownload').onclick = () => {
-    window.location.href = `/api/albums/photos/${photo.id}/download`;
+    window.location.href = `api/albums/photos/${photo.id}/download`;
   };
   el('lightboxOrder').onclick = () => openOrderPanel(photo);
 }
@@ -255,7 +255,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 async function loadComments() {
-  const res = await fetch(`/api/albums/${albumData.id}/comments`);
+  const res = await fetch(`api/albums/${albumData.id}/comments`);
   if (!res.ok) { el('albumComments').style.display = 'none'; return; }
   const comments = await res.json();
   el('commentsList').innerHTML = comments.length
@@ -272,7 +272,7 @@ el('commentForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const body = el('commentInput').value.trim();
   if (!body) return;
-  const res = await fetch(`/api/albums/${albumData.id}/comments`, {
+  const res = await fetch(`api/albums/${albumData.id}/comments`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ body })

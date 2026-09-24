@@ -18,7 +18,7 @@ function heroMarkup(video) {
         <div class="category">${video.category}</div>
         <h1 id="heroTitle">${video.title}</h1>
         <p id="heroDesc">${video.description || ''}</p>
-        <a class="btn btn-primary" id="heroCta" href="/watch.html?id=${video.id}">▶ Assistir</a>
+        <a class="btn btn-primary" id="heroCta" href="watch.html?id=${video.id}">▶ Assistir</a>
       </div>
       <div class="hero-dots" id="heroDots"></div>
     </section>
@@ -39,7 +39,7 @@ function loadHeroVideo(index) {
   const videoEl = document.getElementById('heroVideo');
   document.getElementById('heroTitle').textContent = video.title;
   document.getElementById('heroDesc').textContent = video.description || '';
-  document.getElementById('heroCta').href = `/watch.html?id=${video.id}`;
+  document.getElementById('heroCta').href = `watch.html?id=${video.id}`;
   renderHeroDots();
 
   if (heroHls) { heroHls.destroy(); heroHls = null; }
@@ -81,7 +81,7 @@ function renderHero(reelVideos, fallback) {
 // ---------- Cards ----------
 function videoCardHTML(video) {
   return `
-    <a class="card" href="/watch.html?id=${video.id}">
+    <a class="card" href="watch.html?id=${video.id}">
       <div class="card-thumb" style="background-image:url('${video.poster_url || ''}')">
         ${video.max_quality ? `<span class="badge">${video.max_quality}</span>` : ''}
       </div>
@@ -93,7 +93,7 @@ function videoCardHTML(video) {
 
 function albumCardHTML(album) {
   return `
-    <a class="card" href="/album.html?id=${album.id}">
+    <a class="card" href="album.html?id=${album.id}">
       <div class="card-thumb" style="background-image:url('${album.cover_url || ''}')">
         <span class="badge">📷 Álbum</span>
       </div>
@@ -104,9 +104,9 @@ function albumCardHTML(album) {
 
 async function loadPortfolio() {
   const [videosRes, albumsRes, testimonialsRes] = await Promise.all([
-    fetch('/api/videos/portfolio'),
-    fetch('/api/albums/portfolio'),
-    fetch('/api/testimonials/portfolio')
+    fetch('api/videos/portfolio'),
+    fetch('api/albums/portfolio'),
+    fetch('api/testimonials/portfolio')
   ]);
   const videos = videosRes.ok ? await videosRes.json() : [];
   const albums = albumsRes.ok ? await albumsRes.json() : [];

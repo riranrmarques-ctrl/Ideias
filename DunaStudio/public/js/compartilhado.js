@@ -7,7 +7,7 @@ async function load() {
   const token = params.get('t');
   if (!token) { el('albumHeader').innerHTML = '<p style="padding:0 40px; color:var(--ink-dim);">Link inválido.</p>'; return; }
 
-  const res = await fetch(`/api/albums/share/${token}`);
+  const res = await fetch(`api/albums/share/${token}`);
   if (!res.ok) {
     el('albumHeader').innerHTML = `<div style="text-align:center; padding:60px 20px;"><h1 style="font-size:22px;">Link inválido ou expirado</h1></div>`;
     return;

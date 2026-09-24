@@ -25,7 +25,7 @@ function heroMarkup(video) {
         <div class="category">${video.category}</div>
         <h1 id="heroTitle">${video.title}</h1>
         <p id="heroDesc">${video.description || ''}</p>
-        <a class="btn btn-primary" id="heroCta" href="/watch.html?id=${video.id}">▶ Assistir completo</a>
+        <a class="btn btn-primary" id="heroCta" href="watch.html?id=${video.id}">▶ Assistir completo</a>
       </div>
       <div class="hero-dots" id="heroDots"></div>
     </section>
@@ -46,7 +46,7 @@ function loadHeroVideo(index) {
   const videoEl = document.getElementById('heroVideo');
   document.getElementById('heroTitle').textContent = video.title;
   document.getElementById('heroDesc').textContent = video.description || '';
-  document.getElementById('heroCta').href = `/watch.html?id=${video.id}`;
+  document.getElementById('heroCta').href = `watch.html?id=${video.id}`;
   renderHeroDots();
 
   if (heroHls) { heroHls.destroy(); heroHls = null; }
@@ -81,7 +81,7 @@ function renderHero(reelVideos, fallbackVideo) {
           <div class="category">${fallbackVideo.category}</div>
           <h1>${fallbackVideo.title}</h1>
           <p>${fallbackVideo.description || ''}</p>
-          <a class="btn btn-primary" href="/watch.html?id=${fallbackVideo.id}">▶ Assistir</a>
+          <a class="btn btn-primary" href="watch.html?id=${fallbackVideo.id}">▶ Assistir</a>
         </div>
       </section>
     `;
@@ -105,7 +105,7 @@ function cardHTML(video) {
       <div style="height:100%;width:${progress.pct}%;background:var(--gold);"></div></div>`;
   }
   return `
-    <a class="card" href="${isReady ? `/watch.html?id=${video.id}` : '#'}" ${isReady ? '' : 'onclick="return false;"'}>
+    <a class="card" href="${isReady ? `watch.html?id=${video.id}` : '#'}" ${isReady ? '' : 'onclick="return false;"'}>
       <div class="card-thumb" style="background-image:url('${video.poster_url || ''}')">
         ${video.max_quality ? `<span class="badge">${video.max_quality}</span>` : ''}
         ${!isReady ? `<div class="processing">${video.status.startsWith('processing') ? 'Processando ' + video.status.split(':')[1] : 'Aguardando processamento'}</div>` : ''}
@@ -119,7 +119,7 @@ function cardHTML(video) {
 
 function albumCardHTML(album) {
   return `
-    <a class="card" href="/album.html?id=${album.id}">
+    <a class="card" href="album.html?id=${album.id}">
       <div class="card-thumb" style="background-image:url('${album.cover_url || ''}')">
         <span class="badge">📷 Álbum</span>
       </div>
@@ -131,7 +131,7 @@ function albumCardHTML(album) {
 function contractCardHTML(contract) {
   const isSigned = contract.status === 'signed';
   return `
-    <a class="card" href="/contract.html?id=${contract.id}">
+    <a class="card" href="contract.html?id=${contract.id}">
       <div class="card-thumb" style="background:var(--surface); display:flex; align-items:center; justify-content:center; font-size:34px;">
         📄
         <span class="badge" style="background:${isSigned ? 'rgba(90,160,90,0.85)' : 'rgba(201,161,90,0.85)'}; color:#0d1420;">${isSigned ? 'Assinado' : 'Pendente'}</span>
@@ -143,9 +143,9 @@ function contractCardHTML(contract) {
 
 async function loadCatalog() {
   const [videosRes, albumsRes, contractsRes] = await Promise.all([
-    fetch('/api/videos'),
-    fetch('/api/albums'),
-    fetch('/api/contracts/mine')
+    fetch('api/videos'),
+    fetch('api/albums'),
+    fetch('api/contracts/mine')
   ]);
   if (!videosRes.ok) return;
   const videos = await videosRes.json();

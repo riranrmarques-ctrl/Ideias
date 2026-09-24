@@ -12,11 +12,11 @@ async function loadContract() {
 
   let contract;
   if (idParam) {
-    const res = await fetch(`/api/contracts/${idParam}`);
+    const res = await fetch(`api/contracts/${idParam}`);
     if (!res.ok) { renderEmpty(); return; }
     contract = await res.json();
   } else {
-    const res = await fetch('/api/contracts/mine');
+    const res = await fetch('api/contracts/mine');
     const list = res.ok ? await res.json() : [];
     if (!list.length) { renderEmpty(); return; }
     contract = list[0];
@@ -62,7 +62,7 @@ function render(contract, user) {
         <img src="${contract.signature_data_url}" alt="Assinatura">
         <p style="font-size:13px; color:var(--ink-dim);">Assinado por <b style="color:var(--ink);">${contract.signer_name}</b><br>
         em ${new Date(contract.signed_at).toLocaleString('pt-BR')}</p>
-        <a class="btn btn-primary" href="/api/contracts/${contract.id}/pdf" style="margin-top:14px;">⬇ Baixar contrato (PDF)</a>
+        <a class="btn btn-primary" href="api/contracts/${contract.id}/pdf" style="margin-top:14px;">⬇ Baixar contrato (PDF)</a>
       </div>
     `;
   } else if (!user.isAdmin) {
@@ -143,7 +143,7 @@ function setupSignaturePad() {
     signBtn.textContent = 'Assinando...';
 
     const signatureDataUrl = canvas.toDataURL('image/png');
-    const res = await fetch(`/api/contracts/${currentContract.id}/sign`, {
+    const res = await fetch(`api/contracts/${currentContract.id}/sign`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ signerName: name, signatureDataUrl })

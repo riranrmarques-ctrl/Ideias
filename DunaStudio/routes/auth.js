@@ -28,14 +28,15 @@ router.post('/login', (req, res) => {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
-    maxAge: 30 * 24 * 60 * 60 * 1000
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    path: (process.env.BASE_PATH || '').replace(/\/+$/, '') || '/'
   });
 
   res.json({ ok: true, isAdmin: !!user.is_admin, email: user.email });
 });
 
 router.post('/logout', (req, res) => {
-  res.clearCookie('token');
+  res.clearCookie('token', { path: (process.env.BASE_PATH || '').replace(/\/+$/, '') || '/' });
   res.json({ ok: true });
 });
 

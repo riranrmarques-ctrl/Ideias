@@ -46,7 +46,7 @@ function packageCardHTML(pkg) {
 }
 
 async function loadPackages() {
-  const res = await fetch('/api/packages');
+  const res = await fetch('api/packages');
   const grid = document.getElementById('packagesGrid');
   if (!res.ok) { grid.innerHTML = `<p style="color:var(--ink-dim); padding:0 40px;">Erro ao carregar pacotes.</p>`; return; }
   const packages = await res.json();
@@ -96,7 +96,7 @@ window.goToPayment = async (pkgId) => {
   btn.textContent = 'Redirecionando...';
 
   try {
-    const res = await fetch(`/api/packages/${pkgId}/checkout`, {
+    const res = await fetch(`api/packages/${pkgId}/checkout`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ selectedItemIds, payerName: name, payerEmail: email })

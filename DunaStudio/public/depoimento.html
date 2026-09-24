@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Deixe seu depoimento — Duna</title>
-<link rel="stylesheet" href="/css/styles.css">
+<link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
   <header class="topbar">
     <div class="topbar-spacer"></div>
-    <a href="/index.html" class="brand"><img src="/img/logo-duna.png" alt="Duna" class="brand-logo"></a>
+    <a href="index.html" class="brand"><img src="img/logo-duna.png" alt="Duna" class="brand-logo"></a>
     <div class="topbar-spacer"></div>
   </header>
 
@@ -25,7 +25,7 @@
     </div>
   </div>
 
-  <script src="/js/auth-guard.js"></script>
+  <script src="js/auth-guard.js"></script>
   <script>
     (async () => {
       await requireSession();
@@ -34,7 +34,7 @@
         const quote = document.getElementById('quote').value.trim();
         const photoUrl = document.getElementById('photoUrl').value.trim();
         if (!clientName || !quote) { alert('Preencha nome e depoimento.'); return; }
-        const res = await fetch('/api/testimonials', {
+        const res = await fetch('api/testimonials', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ clientName, quote, photoUrl })
         });

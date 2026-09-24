@@ -4,7 +4,7 @@
 
 Portal de portfólio e entrega de casamentos: filmes em streaming (HLS), álbuns de fotos, contratos com assinatura, pacotes e loja com Mercado Pago.
 
-- `wedding-flix/`: o projeto real (Node.js + Express + SQLite + Cloudflare R2). Veja `wedding-flix/README.md` para rodar.
+- `DunaStudio/`: o projeto real (Node.js + Express + SQLite + Cloudflare R2). Veja `DunaStudio/README.md` para rodar.
 - `docs/index.html`: demonstração que roda só no navegador, com dados de exemplo. É esse arquivo que o GitHub Pages publica.
 - `demo/`: fonte da demonstração. `demo/pages/` tem as páginas do site adaptadas e `demo/pages/js/mock-api.js` simula o backend. Para gerar o `docs/index.html` de novo: `node demo/build.js`.
 

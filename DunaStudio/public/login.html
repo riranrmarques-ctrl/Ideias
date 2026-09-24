@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Entrar — Duna</title>
-<link rel="stylesheet" href="/css/styles.css">
+<link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
   <div class="auth-wrap">
     <div class="auth-card">
-      <span class="brand"><img src="/img/logo-duna.png" alt="Duna" class="brand-logo"></span>
+      <span class="brand"><img src="img/logo-duna.png" alt="Duna" class="brand-logo"></span>
       <div class="error-msg" id="errorMsg"></div>
       <form id="loginForm">
         <div class="field">
@@ -36,14 +36,14 @@
       const password = document.getElementById('password').value;
 
       try {
-        const res = await fetch('/api/auth/login', {
+        const res = await fetch('api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Erro ao entrar');
-        window.location.href = data.isAdmin ? '/admin.html' : '/index.html';
+        window.location.href = data.isAdmin ? 'admin.html' : 'index.html';
       } catch (err) {
         errorMsg.textContent = err.message;
         errorMsg.style.display = 'block';
