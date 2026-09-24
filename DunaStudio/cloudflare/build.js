@@ -28,7 +28,26 @@ for (const full of walk(siteDir)) {
 const source = fs.readFileSync(path.join(root, 'worker.js'), 'utf8');
 const marker = '/*__SITE_FILES__*/ {}';
 if (!source.includes(marker)) throw new Error('Marcador __SITE_FILES__ não encontrado no worker.js');
-const out = source.replace(marker, JSON.stringify(files));
-fs.mkdirSync(path.join(root, 'dist'), { recursive: true });
-fs.writeFileSync(path.join(root, 'dist', 'dunastudio-worker.js'), out);
-console.log(`dist/dunastudio-worker.js: ${Object.keys(files).length} arquivos, ${(out.length / 1024).toFixed(0)} KB`);
+const dist = path.join(root, 'dist');
+fs.mkdirSync(path.join(dist, 'partes'), { recursive: true });
+
+// 1) Arquivo único
+const single = source.replace(marker, JSON.stringify(files));
+fs.writeFileSync(path.join(dist, 'dunastudio-worker.js'), single);
+console.log(`dist/dunastudio-worker.js: ${Object.keys(files).length} arquivos, ${(single.length / 1024).toFixed(0)} KB`);
+
+// 2) Três partes para colar no editor do Cloudflare: worker.js (API) + paginas.js (HTML, CSS e imagens) + scripts.js (JS)
+const paginas = {}, scripts = {};
+for (const [name, file] of Object.entries(files)) {
+  (/\.js$/.test(name) ? scripts : paginas)[name] = file;
+}
+const header = (title) => `// DunaStudio — ${title}\n// Parte gerada por build.js. Não edite à mão: altere a pasta site/ e gere de novo.\n`;
+const partes = {
+  'worker.js': `import PAGINAS from './paginas.js';\nimport SCRIPTS from './scripts.js';\n\n` + source.replace(marker, '{ ...PAGINAS, ...SCRIPTS }'),
+  'paginas.js': header('páginas, estilos e imagens do site') + `export default ${JSON.stringify(paginas)};\n`,
+  'scripts.js': header('scripts do site') + `export default ${JSON.stringify(scripts)};\n`
+};
+for (const [name, content] of Object.entries(partes)) {
+  fs.writeFileSync(path.join(dist, 'partes', name), content);
+  console.log(`dist/partes/${name}: ${(content.length / 1024).toFixed(0)} KB`);
+}

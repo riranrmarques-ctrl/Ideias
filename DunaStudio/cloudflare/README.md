@@ -26,12 +26,16 @@ A pasta `DunaStudio/` (fora de `cloudflare/`) guarda a versão antiga com servid
 
 ### 2. Cloudflare: criar o Worker
 1. **Workers & Pages → Create → Worker**, com o nome `dunastudio` → **Deploy**.
-2. **Edit code**: apague o código de exemplo, cole todo o conteúdo de `dist/dunastudio-worker.js` e toque em **Deploy**.
+2. **Edit code**. O código vai em 3 arquivos, que ficam em `dist/partes/`:
+   - `worker.js`: apague o código de exemplo do arquivo principal e cole este.
+   - `paginas.js`: crie um arquivo novo com esse nome exato (ícone de novo arquivo no editor) e cole.
+   - `scripts.js`: mesma coisa.
+   Depois toque em **Deploy**. Se preferir colar um arquivo só, use `dist/dunastudio-worker.js`.
 3. **Settings → Bindings → Add → R2 bucket**: nome da variável `MEDIA`, bucket `dunastudio`.
 4. **Settings → Domains & Routes → Add → Route**: `dunabranding.com.br/studio*`, zona `dunabranding.com.br`.
 
 ### 3. Atualizações
-Quando o código mudar, gere o arquivo de novo com `node build.js` e cole o novo `dist/dunastudio-worker.js` em **Edit code**. As variáveis e ligações continuam.
+Quando o código mudar, gere os arquivos de novo com `node build.js` e cole as partes novas em **Edit code**. As variáveis e ligações continuam.
 
 ### 4. Cloudflare: variáveis do Worker
 Em **Workers & Pages → dunastudio → Settings → Variables and Secrets**:
