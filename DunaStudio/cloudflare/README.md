@@ -2,8 +2,7 @@
 
 Esta é a versão do DunaStudio que roda só com Cloudflare e Supabase, no mesmo padrão do painel de TVs:
 
-- **Páginas**: bucket R2 `hosp`, pasta `studio/`, abertas em `dunabranding.com.br/studio`
-- **API**: Worker `dunastudio`, em `dunabranding.com.br/studio/api/...`
+- **Páginas e API**: um único Worker, `dunastudio`, em `dunabranding.com.br/studio`. As páginas ficam embutidas no próprio arquivo do Worker (`dist/dunastudio-worker.js`).
 - **Login e banco**: Supabase (tabelas `studio_*`)
 - **Filmes e fotos**: bucket R2 `dunastudio` (privado; o Worker entrega com links assinados que valem 12 horas)
 
@@ -25,17 +24,14 @@ A pasta `DunaStudio/` (fora de `cloudflare/`) guarda a versão antiga com servid
 3. Em **Authentication → URL Configuration**, adicione `https://dunabranding.com.br/studio/login.html` em **Redirect URLs** (para o "Esqueci minha senha").
 4. Em **Project Settings → API**, anote: **Project URL**, **anon public key** e **service_role key** (secreta).
 
-### 2. Cloudflare: token para o GitHub publicar
-1. **My Profile → API Tokens → Create Token → Edit Cloudflare Workers** (modelo).
-2. Adicione a permissão **Account → Workers R2 Storage → Edit**.
-3. Em Zone Resources, escolha **dunabranding.com.br**. Crie e copie o token.
+### 2. Cloudflare: criar o Worker
+1. **Workers & Pages → Create → Worker**, com o nome `dunastudio` → **Deploy**.
+2. **Edit code**: apague o código de exemplo, cole todo o conteúdo de `dist/dunastudio-worker.js` e toque em **Deploy**.
+3. **Settings → Bindings → Add → R2 bucket**: nome da variável `MEDIA`, bucket `dunastudio`.
+4. **Settings → Domains & Routes → Add → Route**: `dunabranding.com.br/studio*`, zona `dunabranding.com.br`.
 
-### 3. GitHub: segredos da publicação automática
-Em **Settings → Secrets and variables → Actions → New repository secret**:
-- `CLOUDFLARE_API_TOKEN`: o token do passo 2
-- `CLOUDFLARE_ACCOUNT_ID`: o Account ID (aparece na página do R2)
-
-Depois, em **Actions → Publicar DunaStudio → Run workflow**. Toda alteração em `DunaStudio/cloudflare/` publica sozinha.
+### 3. Atualizações
+Quando o código mudar, gere o arquivo de novo com `node build.js` e cole o novo `dist/dunastudio-worker.js` em **Edit code**. As variáveis e ligações continuam.
 
 ### 4. Cloudflare: variáveis do Worker
 Em **Workers & Pages → dunastudio → Settings → Variables and Secrets**:
@@ -45,6 +41,7 @@ Em **Workers & Pages → dunastudio → Settings → Variables and Secrets**:
 | `SUPABASE_URL` | Text | Project URL do Supabase |
 | `SUPABASE_ANON_KEY` | Text | anon public key |
 | `ADMIN_EMAILS` | Text | seu e-mail de admin (vários separados por vírgula) |
+| `SITE_URL` | Text | `https://dunabranding.com.br/studio` |
 | `SUPABASE_SERVICE_KEY` | **Secret** | service_role key |
 | `MEDIA_SIGNING_SECRET` | **Secret** | um texto longo e aleatório (40+ caracteres) |
 | `MP_ACCESS_TOKEN` | Secret (opcional) | Access Token de produção do Mercado Pago |
@@ -55,4 +52,4 @@ Entre em `https://dunabranding.com.br/studio/login.html` com o e-mail que está 
 
 ## Rotas
 
-`wrangler.toml` publica o Worker só em `dunabranding.com.br/studio*`. As outras rotas do domínio (painel, tvs, news...) continuam com o Worker que já existe.
+A rota `dunabranding.com.br/studio*` faz esse Worker responder só pelo `/studio`. As outras rotas do domínio (painel, tvs, news...) continuam com o Worker que já existe.

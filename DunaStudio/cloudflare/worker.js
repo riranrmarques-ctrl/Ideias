@@ -1,9 +1,11 @@
 // DunaStudio — Worker do Cloudflare
-// Publica dunabranding.com.br/studio: as páginas (bucket "hosp", pasta studio/) e a API (/studio/api/...).
+// Publica dunabranding.com.br/studio: as páginas do site e a API (/studio/api/...).
+// As páginas vêm embutidas neste arquivo (gerado por build.js a partir da pasta site/).
+// Se o Worker tiver o bucket HOSP ligado e a página não estiver embutida, ela é lida de hosp/studio/.
 // Login e banco ficam no Supabase; filmes e fotos ficam no bucket "dunastudio" (privado).
 //
 // Ligações (bindings) e variáveis esperadas — ver wrangler.toml e README:
-//   HOSP (R2)              bucket onde ficam as páginas (pasta studio/)
+//   HOSP (R2, opcional)    bucket com páginas extras na pasta studio/
 //   MEDIA (R2)             bucket privado dos filmes e fotos
 //   SUPABASE_URL           ex: https://xxxx.supabase.co
 //   SUPABASE_ANON_KEY      chave pública (anon) do Supabase
@@ -16,6 +18,8 @@
 //   NOTIFY_EMAIL, MAIL_FROM (opcionais) destino e remetente do e-mail de venda
 
 const BASE = '/studio';
+// Preenchido pelo build.js: { "portfolio.html": { type, body, base64 } }
+const SITE_FILES = /*__SITE_FILES__*/ {};
 const SITE_PREFIX = 'studio/';
 const MEDIA_TTL_SECONDS = 12 * 60 * 60;
 const GUEST_MAX_BYTES = 30 * 1024 * 1024;
@@ -57,26 +61,38 @@ const MIME = {
 };
 const extOf = (name) => (name.split('?')[0].match(/\.([a-z0-9]+)$/i) || [])[1]?.toLowerCase() || '';
 
+async function readSiteFile(env, file) {
+  const embedded = SITE_FILES[file];
+  if (embedded) {
+    const body = embedded.base64 ? Uint8Array.from(atob(embedded.body), ch => ch.charCodeAt(0)) : embedded.body;
+    return { body, etag: embedded.etag };
+  }
+  if (!env.HOSP) return null;
+  const obj = await env.HOSP.get(SITE_PREFIX + file);
+  return obj ? { body: obj.body, etag: obj.httpEtag } : null;
+}
+
 async function serveSite(request, env, sub) {
   if (request.method !== 'GET' && request.method !== 'HEAD') return new Response('Método não permitido', { status: 405 });
   let file = decodeURIComponent(sub.slice(1)) || 'portfolio.html';
   if (file.includes('..')) return new Response('Não encontrado', { status: 404 });
   if (file.endsWith('/')) file += 'index.html';
 
-  let obj = await env.HOSP.get(SITE_PREFIX + file);
-  if (!obj && !extOf(file)) { file += '.html'; obj = await env.HOSP.get(SITE_PREFIX + file); }
-  if (!obj && (!extOf(file) || extOf(file) === 'html')) { file = 'portfolio.html'; obj = await env.HOSP.get(SITE_PREFIX + file); }
-  if (!obj) return new Response('Não encontrado', { status: 404 });
+  let found = await readSiteFile(env, file);
+  if (!found && !extOf(file)) { file += '.html'; found = await readSiteFile(env, file); }
+  if (!found && (!extOf(file) || extOf(file) === 'html')) { file = 'portfolio.html'; found = await readSiteFile(env, file); }
+  if (!found) return new Response('Não encontrado', { status: 404 });
 
   const ext = extOf(file);
   const headers = new Headers({
-    'Content-Type': MIME[ext] || obj.httpMetadata?.contentType || 'application/octet-stream',
+    'Content-Type': MIME[ext] || 'application/octet-stream',
     'Cache-Control': ext === 'html' ? 'no-cache' : 'public, max-age=300',
     'X-Content-Type-Options': 'nosniff',
-    'Referrer-Policy': 'same-origin',
-    ETag: obj.httpEtag
+    'Referrer-Policy': 'same-origin'
   });
-  return new Response(request.method === 'HEAD' ? null : obj.body, { headers });
+  if (found.etag) headers.set('ETag', found.etag);
+  if (found.etag && request.headers.get('If-None-Match') === found.etag) return new Response(null, { status: 304, headers });
+  return new Response(request.method === 'HEAD' ? null : found.body, { headers });
 }
 
 // ---------------------------------------------------------------------------

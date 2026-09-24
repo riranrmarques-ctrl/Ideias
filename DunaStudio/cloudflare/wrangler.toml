@@ -1,6 +1,7 @@
-# Configuração do Worker do DunaStudio (publicado pelo GitHub Actions — ver README)
+# Configuração do Worker do DunaStudio (para quem publicar pelo terminal com "wrangler deploy").
+# Pelo painel do Cloudflare, basta colar dist/dunastudio-worker.js — ver README.
 name = "dunastudio"
-main = "worker.js"
+main = "dist/dunastudio-worker.js"
 compatibility_date = "2026-09-01"
 
 # O Worker responde só por dunabranding.com.br/studio (as outras rotas do domínio continuam como estão)
@@ -10,10 +11,6 @@ routes = [
 
 # Mantém as variáveis que forem criadas pelo painel do Cloudflare
 keep_vars = true
-
-[[r2_buckets]]
-binding = "HOSP"
-bucket_name = "hosp"
 
 [[r2_buckets]]
 binding = "MEDIA"

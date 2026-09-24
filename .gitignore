@@ -1,3 +1,4 @@
 node_modules/
 .env
 DunaStudio/data/*.db*
+.wrangler/
