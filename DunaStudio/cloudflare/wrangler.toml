@@ -1,6 +1,6 @@
 # Configuração do Worker do DunaStudio (para quem publicar pelo terminal com "wrangler deploy").
 # Pelo painel do Cloudflare, basta colar dist/dunastudio-worker.js — ver README.
-name = "dunastudio"
+name = "lucky-firefly-1310"
 main = "dist/dunastudio-worker.js"
 compatibility_date = "2026-09-01"
 

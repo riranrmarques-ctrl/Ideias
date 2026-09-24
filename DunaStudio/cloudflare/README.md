@@ -2,7 +2,7 @@
 
 Esta é a versão do DunaStudio que roda só com Cloudflare e Supabase, no mesmo padrão do painel de TVs:
 
-- **Páginas e API**: um único Worker, `dunastudio`, em `dunabranding.com.br/studio`. As páginas ficam embutidas no próprio arquivo do Worker (`dist/dunastudio-worker.js`).
+- **Páginas e API**: um único Worker (`lucky-firefly-1310`), em `dunabranding.com.br/studio`. As páginas ficam embutidas no próprio arquivo do Worker (`dist/dunastudio-worker.js`).
 - **Login e banco**: Supabase (tabelas `studio_*`)
 - **Filmes e fotos**: bucket R2 `dunastudio` (privado; o Worker entrega com links assinados que valem 12 horas)
 
@@ -38,7 +38,7 @@ A pasta `DunaStudio/` (fora de `cloudflare/`) guarda a versão antiga com servid
 Quando o código mudar, gere os arquivos de novo com `node build.js` e cole as partes novas em **Edit code**. As variáveis e ligações continuam.
 
 ### 4. Cloudflare: variáveis do Worker
-Em **Workers & Pages → dunastudio → Settings → Variables and Secrets**:
+Em **Workers & Pages → lucky-firefly-1310 → Settings → Variables and Secrets**:
 
 | Nome | Tipo | Valor |
 |---|---|---|
